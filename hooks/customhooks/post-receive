@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Get branch name from ref head
+
+if ! [-t 0 ]; then
+  read -a ref
+fi
+IFS='/' read -ra REF <<< "${ref[2]}"
+branch="${REF[2]}"
+
+if [ $branch == "master" ]; then
+crumb=$(curl -u "jenkins:jenkins" -s 'http://192.168.0.102:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)')
+curl -u "jenkins:jenkins" -H "$crumb" -x POST http://192.168.0.102:8080/job/versioncontrol-Git/build?delay=0sec
+
+ if [ $? -eq 0 ] ; then 
+  echo "***ok"
+ else
+  echo "***error"
+ fi
+fi
